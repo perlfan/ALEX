@@ -2,7 +2,11 @@
 
 use InSilicoSpectro::InSilico::MassCalculator;
 InSilicoSpectro::InSilico::MassCalculator::init('insilicodef.xml');
-use InSilicoSpectro::InSilico::MSMSTheoSpectrum;
+use MSMSTheoSpectrum;
+
+# get fragType hash
+my %fragType = %{InSilicoSpectro::InSilico::MassCalculator::fragType};
+my %series= %{InSilicoSpectro::InSilico::MassCalculator::series};
 my $peptide = 'QCTIPADFK';
 my @modif   = ('');
 my $modif   = '';
@@ -14,7 +18,7 @@ getFragmentMasses(
     fragTypes => [ 'b', 'y', 'b++', 'y++', 'immo' ],
     spectrum  => \%spectrum
 );
-my $theoSpectrum = new InSilicoSpectro::InSilico::MSMSTheoSpectrum(
+my $theoSpectrum = new MSMSTheoSpectrum(
     theoSpectrum => \%spectrum,
     massType     => getMassType()
 );
@@ -23,11 +27,12 @@ print "Fragments of ", $theoSpectrum->getPeptide(), " (",
   modifToString( $theoSpectrum->getModif(), $len ), ", ",
   $theoSpectrum->getPeptideMass(), " Da):\n";
 
-foreach ( $theoSpectrum->getTermIons() ) {
-    print "$_\n";
+foreach ( $theoSpectrum->getTermIons(\%fragType,\%series) ) {
+    print $theoSpectrum->toString($_)."\n";;
 }
+print "\n";
 foreach ( $theoSpectrum->getInternIons() ) {
-    print "$_\n";
+    print $theoSpectrum->toString($_)."\n";
 }
 
 ################## output ##########################
